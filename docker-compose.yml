@@ -7,8 +7,8 @@ services:
     links:
       - bar
     environment:
-      BAR_ENDPOINT: http://172.18.0.1:5001
+      BITCOIN_ENDPOINT: http://172.18.0.1:5001
   bar:
-    build: ./bar
+    build: bitcoin
     ports:
       - "5001:5000"

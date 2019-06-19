@@ -1,20 +1,30 @@
 import os
 import requests
-
-from flask import Flask
+from bs4 import BeautifulSoup
+from flask import Flask,jsonify
 
 app = Flask(__name__)
 
-BAR_ENDPOINT = os.getenv('BAR_ENDPOINT', 'http://localhost:5001')
+BITCOIN_ENDPOINT = os.getenv('BITCOIN_ENDPOINT', 'http://localhost:5001')
 
-@app.route("/foo")
-def foo():
-    return "foo"
+@app.route("/dolar")
+def buscarPrecoDolar():
+
+    req = requests.get('https://www.dolarhoje.com/')
+
+    if (req.status_code == 200):
+        content = req.content
+
+        soup = BeautifulSoup(content, 'html.parser')
+        valorDolarReal = soup.find(name='input', attrs={'id': 'nacional'})
+
+        return jsonify(valor=valorDolarReal.attrs.get('value'))
+    return jsonify(erro='falha na requisicao')
 
 
-@app.route("/foobar")
-def bar():
-    response = requests.get(f'{BAR_ENDPOINT}/bar')
+@app.route("/dolarbitcoin")
+def getBitCoinValue():
+    response = requests.get(f'{BITCOIN_ENDPOINT}/bitcoin')
     return "foo" + response.text
 
 
