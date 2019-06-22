@@ -3,8 +3,6 @@
 ## Introdução
 - Breve explicação sobre todo o trabalho (propósito, desenvolvimento e conclusões).
 
----
-
 ## Desenvolvimento
 
 #### Nossa aplicação em python:
@@ -88,8 +86,73 @@ docker pull luciane/bitcoin:1.0
 Esse comando somente baixa a imagem, sem criar nenhum container acima dela. 
 
 #### Utilizando Kubernetes em nosso projeto: 
+Para gerenciar nossa aplicação utilizamos o Kubernetes que é um software que nos permite implantar, dimensionar e gerenciar conteiners em um cluster. 
 
----
+**Preparando o ambiente:**
+Neste passo-a-passo, será visto como configurar o Kubernetes localmente com a plataforma Minikube. Todos os comandos listados devem ser executados no seu terminal. 
+
+Como o Minikube utiliza um ambiente virtualizado, é necessário instalar o VirtualBox.  
+1. No Ubuntu, podemos utilizar o Ubuntu Software para realizar o download. Pesquise por VirtualBox, deverá aparecer a opção de instalação e posteriormente clique no botão Instalar.
+
+Uma vez que a instalação do VirtualBox foi realizada, será necessário realizar a instalação do Minikube, seguem os passos de instalação: 
+
+2. Abrir o terminal e digitar o seguinte comando: 
+```sh
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo chmod +x minikube && sudo mv minikube /usr/local/bin/ 
+```
+Para realizarmos a comunicação com o cluster gerenciado pelo Kubernetes, devemos instalar o kubectl, seguem os passos de instalação: 
+
+3. Abrir o terminal e digitar o seguinte comando: 
+```sh
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl 
+```
+4. Na sequência, devemos mudar a permissão para executável: 
+```sh
+chmod +x ./kubectl  
+```
+5. Por fim, devemos mover o kubectl para as variáveis de ambiente: 
+```sh
+sudo mv ./kubectl /usr/local/bin/kubectl 
+```
+Após a instalação e inicialização do Minikube na máquina local, será criado um ambiente virtualizado (VM), em que haverá o cluster, a máquina Mestre - que estará recebendo as configurações do arquivo YML - e a máquina Python, a receber a implementação dos containers que formam a aplicação. 
+
+**Criando os arquivos de configuração:**
+
+Na nossa aplicação criaremos um objeto Pod para abstrair os containers. 
+```yml
+apiVersion: v1 
+kind: Pod 
+metadata: 
+  name: bitconvert 
+  namespace: bitconvert 
+spec: 
+  containers: 
+  - name: bitcoin 
+    image: luciane/ bitcoin:1.0 
+    resources: 
+      limits: 
+        memory: "200Mi" 
+      requests: 
+        memory: "100Mi" 
+  - name: dolar 
+    image: luciane/real:1.0 
+    resources: 
+      limits: 
+        memory: "200Mi" 
+      requests: 
+        memory: "100Mi" 
+    env: 
+      - name: BITCOIN_ENDPOINT 
+        value: http://172.18.0.1:5001 
+```
+Feito isto, queremos que seja criado no cluster o Pod, que abstrai nossos containers. Voltaremos ao terminal e inicializaremos o minikube. 
+```sh
+ minikube start 
+```
+Como queremos que seja criado o Pod, especificado em nosso arquivo digitaremos: 
+```sh
+kubectl create -f pod.yml 
+```
 
 ## Conclusões
 - O projeto funcionou completamente ou parcialmente? Se parcialmente, o que o projeto não faz e por que não foi implementado?
