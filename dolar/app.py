@@ -26,7 +26,7 @@ def buscarPrecoDolar():
 def getBitCoinValue():
     responseReal = requests.get('http://localhost:5000/dolar')
     responseDolar = requests.get(f'{BITCOIN_ENDPOINT}/bitcoin')
-    return float(responseDolar.json()[0].get('valor')) * float(responseReal.json()[0].get('valor'))
+    return jsonify(valor=float(responseDolar.json().get('valor')) * float(responseReal.json().get('valor').replace(',','.')))
 
 
 if __name__ == '__main__':
