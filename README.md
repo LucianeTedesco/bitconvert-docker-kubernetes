@@ -1,7 +1,7 @@
 # Desenvolvendo uma aplicação utilizando Docker e Kubernetes
 
 ## Introdução
-- Breve explicação sobre todo o trabalho (propósito, desenvolvimento e conclusões).
+O propósito deste trabalho é construir uma simples aplicação em Python, que será dividida em dois containers: um para o serviço que obtém o valor do bitcoin, e outro para o serviço que obtém a cotação do dolar. A divisão é para evidenciar comunicação entre containers. Será disponibilizada a imagem dos dois serviços no Docker Hub, e será feita a orquestração dos containers com Kubernetes.
 
 ## Desenvolvimento
 
@@ -141,45 +141,85 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 Após a instalação e inicialização do Minikube na máquina local, será criado um ambiente virtualizado (VM), em que haverá o cluster, a máquina Mestre - que estará recebendo as configurações do arquivo YML - e a máquina Python, a receber a implementação dos containers que formam a aplicação. 
 
 **Criando os arquivos de configuração:**
+Como não existe um objeto container no Kubernetes, utilizamos o menor objeto existente, o *Pod*, que além disto é o mais básico, portanto não adiciona a camada de estado desejado da nossa aplicação para o Kubernetes gerenciar.
 
-Na nossa aplicação criaremos um objeto Pod para abstrair os containers. 
+Ou seja, é necessário colocar o objeto Pod em outro, o *Deployment*, a partir de então, o Kubernetes saberá que sempre queremos ter um pod rodando em nosso cluster.
+
+Abaixo é mostrado o Deployment criado para o projeto bitcoin.
 ```yml
-apiVersion: v1 
-kind: Pod 
-metadata: 
-  name: bitconvert 
-  namespace: bitconvert 
-spec: 
-  containers: 
-  - name: bitcoin 
-    image: luciane/ bitcoin:1.0 
-    resources: 
-      limits: 
-        memory: "200Mi" 
-      requests: 
-        memory: "100Mi" 
-  - name: dolar 
-    image: luciane/real:1.0 
-    resources: 
-      limits: 
-        memory: "200Mi" 
-      requests: 
-        memory: "100Mi" 
-    env: 
-      - name: BITCOIN_ENDPOINT 
-        value: http://172.18.0.1:5001 
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bitcoin
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: bitcoin
+    spec:
+      containers:
+        - name: bitcoin
+          image: luciane/bitcoin:1.0
+          ports:
+            - containerPort: 5000
 ```
-Feito isto, queremos que seja criado no cluster o Pod, que abstrai nossos containers. Voltaremos ao terminal e inicializaremos o minikube. 
+Feito isto, voltaremos ao terminal e inicializaremos o minikube. 
 ```sh
  minikube start 
 ```
-Como queremos que seja criado o Pod, especificado em nosso arquivo digitaremos: 
+Como queremos que seja criado o Deployment especificado  em nosso cluster, digitaremos: 
 ```sh
-kubectl create -f pod.yml 
+kubectl create -f bitconvert_deployment.yml 
+```
+Para verificar se o Pod está realmente sendo executado:
+```sh
+kubectl get pods
+```
+Veremos que o pod denominado "bitcoin", está com status "Running", isto é, está rodando perfeitamente.
+Caso ocorra algum problema que impeça o funcionamento do Pod, esperamos que o Kubernetes tome alguma ação para reverter a situação. Para isso iremos remover um dos pods:
+```sh
+kubectl delete pods bitcoin-555bd7fbb8-9vqmx
+```
+Como no nosso arquivo está configurado para sempre existir dois pod, `replicas: 2`, o Kubernetes percebe o estado atual e cria um novo pod. Podemos verificar através do comando:
+```sh
+kubectl get pods
+```
+Isto demonstra que garantimos o gerenciamento por parte do Kubernetes, que criou um novo pod denominado `bitcoin-65f867f7dd-27cxd` para substituir aquele que foi removido.
+
+No entanto, os objetos Pod estão em constante alteração: é possível aumentar ou diminuir sua quantidade, ou que sejam encerrados por algum problema e, no caso, o Kubernetes precisará criar um novo objeto para substituí-los, o que ocasionará em um novo endereço IP.
+
+Por conta disto, não conseguimos acessar os novos objetos Pod diretamente, sendo necessário abstrair o acesso a eles em um objeto *Service*.
+
+A ideia é que ele faça a abstração do acesso para os objetos Pod. Podemos configurá-lo para que ele atue como se fosse um balanceador de cargas, dividindo a quantidade de acessos e requisições que nossa aplicação terá, por estes pods que criamos.
+
+Abaixo é mostrado o Service criado para o projeto bitcoin.
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitcoin
+spec:
+  selector:
+    app: bitcoin
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+```
+Acima, é especificado que Service precisará acessar uma porta de comunicação da nossa aplicação, a 80, que se comunica com a porta 5000 do nosso Pod, e que é necessário estabelecer um vínculo entre o objeto Service e o Pod através do `selector`, 
+Como queremos que seja criado o Service especificado, digitaremos: 
+```sh
+kubectl create -f bitconvert_service.yml 
+```
+Para visualizar o status do cluster podemos acessar o painel administrativo, através do comando:
+```sh
+minikube dashboard
 ```
 
 ## Conclusões
-- O projeto funcionou completamente ou parcialmente? Se parcialmente, o que o projeto não faz e por que não foi implementado?
-- O que a equipe concluiu? Quais foram as dificuldades?
-- Apresente ao menos uma sugestão de trabalho futuro (melhoria).
+Começamos com a aplicação em python, cujas tarefas dividimos em containers, e disponibilizamos as imagens no Docker Hub.
+Feito isso, instalamos o minikube para utilizar o gerenciamento desejado do Kubernetes em nossa aplicação. No entando, o Kubernetes não possui um objeto denominado "Container", tivemos que criar o objeto Deployment. Nele informamos que sempre deve existir dois pods. Deletamos um dos pods e, assim, conseguimos evidenciar a criação de outro, conforme desejado.
+Vimos que os pods são muito instáveis, por isso, não conseguimos acessar um pod diretamente. Para solucionar esse problema foi criado o objeto Service. Nele definimos também o balanciamento entre os pods existentes.
+O projeto funcionou conforme o desejado, não apresentando dificuldades. Uma sugestão de trabalho futuro é configurar o cluster no Goolge Cloud.
 
