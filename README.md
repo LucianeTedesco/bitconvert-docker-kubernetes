@@ -7,8 +7,26 @@
 
 #### Nossa aplicação em python:
 Como o projeto tem seu foco principal no uso do docker e kubernates, contamos apenas com uma simples aplicação em python que irá calcular o preço da moeda Bitcoin em reais.  
-O calculo é feito pegando a cotação atual do dólar no site dolarhoje.com e o valor da bitcoin em dolar através da API api.coinmarketcap.com.
-TODO: acabar isso aqui.
+O calculo é feito por meio de dois serviços. Um deles, é responsável por obter a cotação do dólar no site dolarhoje.com. Para isso usamos as bibliotecas requests e beautifulsoup além do Flask. A primeira é utilizada para se criar uma requisição ao site dolarhoje, então com o beautifulsoup extraimos o conteúdo html dessa request e procuramos pelo input de id 'nacional', que contém o valor do dólar.    
+**Realizando requisição:**
+```python
+req = requests.get('https://www.dolarhoje.com/')
+```
+**Extraindo conteúdo com beautifulsoup:**
+```python
+soup = BeautifulSoup(content, 'html.parser')
+valorDolarReal = soup.find(name='input', attrs={'id': 'nacional'})
+```
+O outro serviço fica com a responsabilidade de buscar o preço da bitcoin em dólar. Para isso utilizamos apenas a biblioteca requests, pois o valor virá de uma API.
+**Realizando requisição:**
+```python
+response = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/')
+```
+**Obtendo valor do bitcoindo objeto JSON retornado pela API**
+```python
+valorBitcoin = response.json()[0].get('price_usd')
+```
+Ainda no primeiro serviço, contamos com um segundo endpoint que é responsável por fazer o calculo do preço da bitcoin em reais. Esse endpoint chamará o primeiro endpoint desse serviço e o end point do segundo serviço para fazer o calculo do preço e retornar em um JSON.
 
 #### Utilizando Docker em nosso projeto: 
 O Docker nada mais é do que uma plataforma para desenvolvedores e administradores de sistemas desenvolverem, implementarem e executarem aplicativos com container.  
