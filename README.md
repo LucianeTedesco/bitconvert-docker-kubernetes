@@ -6,6 +6,9 @@
 ## Desenvolvimento
 
 #### Nossa aplicação em python:
+Como o projeto tem seu foco principal no uso do docker e kubernates, contamos apenas com uma simples aplicação em python que irá calcular o preço da moeda Bitcoin em reais.  
+O calculo é feito pegando a cotação atual do dólar no site dolarhoje.com e o valor da bitcoin em dolar através da API api.coinmarketcap.com.
+TODO: acabar isso aqui.
 
 #### Utilizando Docker em nosso projeto: 
 O Docker nada mais é do que uma plataforma para desenvolvedores e administradores de sistemas desenvolverem, implementarem e executarem aplicativos com container.  
