@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dolar
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: dolar
+    spec:
+      containers:
+        - name: dolar
+          image: luciane/dolar:1.0
+          ports:
+            - containerPort: 5000
+          env:
+            - name: BITCOIN_ENDPOINT
+              value: http://10.103.158.74
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bitcoin
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: bitcoin
+    spec:
+      containers:
+        - name: bitcoin
+          image: luciane/bitcoin:1.0
+          ports:
+            - containerPort: 5000

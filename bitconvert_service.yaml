@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dolar
+spec:
+  selector:
+    app: dolar
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitcoin
+spec:
+  selector:
+    app: bitcoin
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
