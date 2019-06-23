@@ -24,8 +24,9 @@ def buscarPrecoDolar():
 
 @app.route("/dolarbitcoin")
 def getBitCoinValue():
-    response = requests.get(f'{BITCOIN_ENDPOINT}/bitcoin')
-    return "foo" + response.text
+    responseReal = requests.get('http://localhost:5000/dolar')
+    responseDolar = requests.get(f'{BITCOIN_ENDPOINT}/bitcoin')
+    return jsonify(valor=float(responseDolar.json().get('valor')) * float(responseReal.json().get('valor').replace(',','.')))
 
 
 if __name__ == '__main__':

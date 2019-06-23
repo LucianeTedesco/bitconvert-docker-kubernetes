@@ -8,16 +8,12 @@ app = Flask(__name__)
 
 @app.route("/bitcoin")
 def buscarPrecoBitcoin():
-    req = requests.get('https://www.coindesk.com/price/bitcoin')
+    response = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/')
 
-    if (req.status_code == 200):
-        content = req.content
-
-        soup = BeautifulSoup(content, 'html.parser')
-        valorBitcoinDolar = soup.find(name='span', attrs={'class': 'push-data'})
-
-        return jsonify(valor=valorBitcoinDolar.attrs.get('value'))
-    return jsonify(erro='falha na requisicao')
+    if (response.status_code == 200):
+        valorBitcoin = response.json()[0].get('price_usd')
+        return jsonify(valor=valorBitcoin)
+    return jsonify(erro='Bad request')
 
 
 if __name__ == '__main__':
