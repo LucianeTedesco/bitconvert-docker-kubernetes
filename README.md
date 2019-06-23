@@ -17,7 +17,7 @@ req = requests.get('https://www.dolarhoje.com/')
 soup = BeautifulSoup(content, 'html.parser')
 valorDolarReal = soup.find(name='input', attrs={'id': 'nacional'})
 ```
-O outro serviço fica com a responsabilidade de buscar o preço da bitcoin em dólar. Para isso utilizamos apenas a biblioteca requests, pois o valor virá de uma API.
+O outro serviço fica com a responsabilidade de buscar o preço da bitcoin em dólar. Para isso utilizamos apenas a biblioteca requests, pois o valor virá de uma API.  
 **Realizando requisição:**
 ```python
 response = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/')
@@ -27,7 +27,10 @@ response = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/')
 valorBitcoin = response.json()[0].get('price_usd')
 ```
 Ainda no primeiro serviço, contamos com um segundo endpoint que é responsável por fazer o calculo do preço da bitcoin em reais. Esse endpoint chamará o primeiro endpoint desse serviço e o end point do segundo serviço para fazer o calculo do preço e retornar em um JSON.
-
+**Exemplo JSON de retorno**
+```JSON
+{"valor":"40720.06"}
+```
 #### Utilizando Docker em nosso projeto: 
 O Docker nada mais é do que uma plataforma para desenvolvedores e administradores de sistemas desenvolverem, implementarem e executarem aplicativos com container.  
 Um container é uma instância de uma imagem. Uma imagem é um pacote executável que inclui tudo o que é necessário para executar um programa (código, bibliotecas, variáveis de ambiente, arquivos de configurações e etc.) 
