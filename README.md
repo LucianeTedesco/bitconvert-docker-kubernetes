@@ -26,7 +26,7 @@ response = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/')
 ```python
 valorBitcoin = response.json()[0].get('price_usd')
 ```
-Ainda no primeiro serviço, contamos com um segundo endpoint que é responsável por fazer o calculo do preço da bitcoin em reais. Esse endpoint chamará o primeiro endpoint desse serviço e o end point do segundo serviço para fazer o calculo do preço e retornar em um JSON.
+Ainda no primeiro serviço, contamos com um segundo endpoint que é responsável por fazer o calculo do preço da bitcoin em reais. Esse endpoint chamará o primeiro endpoint desse serviço e o end point do segundo serviço para fazer o calculo do preço e retornar em um JSON.  
 **Exemplo JSON de retorno**
 ```JSON
 {"valor":"40720.06"}
