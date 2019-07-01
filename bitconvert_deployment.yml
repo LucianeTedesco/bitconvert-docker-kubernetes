@@ -16,7 +16,7 @@ spec:
             - containerPort: 5000
           env:
             - name: BITCOIN_ENDPOINT
-              value: http://10.103.158.74
+              value: http://bitcoin
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

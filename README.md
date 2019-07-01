@@ -141,7 +141,7 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 Após a instalação e inicialização do Minikube na máquina local, será criado um ambiente virtualizado (VM), em que haverá o cluster, a máquina Mestre - que estará recebendo as configurações do arquivo YML - e a máquina Python, a receber a implementação dos containers que formam a aplicação. 
 
 **Criando os arquivos de configuração:**
-Como não existe um objeto container no Kubernetes, utilizamos o menor objeto existente, o *Pod*, que além disto é o mais básico, portanto não adiciona a camada de estado desejado da nossa aplicação para o Kubernetes gerenciar.
+Como não existe um objeto container no Kubernetes, utilizamos o menor objeto existente, o *Pod*, que além disto é o mais básico, portanto não adiciona a camada de estado da nossa aplicação para o Kubernetes gerenciar.
 
 Ou seja, é necessário colocar o objeto Pod em outro, o *Deployment*, a partir de então, o Kubernetes saberá que sempre queremos ter um pod rodando em nosso cluster.
 
@@ -212,6 +212,10 @@ Como queremos que seja criado o Service especificado, digitaremos:
 ```sh
 kubectl create -f bitconvert_service.yml 
 ```
+Como nossos serviços são do tipo `LoadBalancer`, devemos ter um ip externo exposto, para isso utilizaremos o comando `tunnel`:
+```sh
+minikube tunnel
+```
 Para visualizar o status do cluster podemos acessar o painel administrativo, através do comando:
 ```sh
 minikube dashboard
@@ -220,6 +224,6 @@ minikube dashboard
 ## Conclusões
 Começamos com a aplicação em python, cujas tarefas dividimos em containers, e disponibilizamos as imagens no Docker Hub.
 Feito isso, instalamos o minikube para utilizar o gerenciamento desejado do Kubernetes em nossa aplicação. No entando, o Kubernetes não possui um objeto denominado "Container", tivemos que criar o objeto Deployment. Nele informamos que sempre deve existir dois pods. Deletamos um dos pods e, assim, conseguimos evidenciar a criação de outro, conforme desejado.
-Vimos que os pods são muito instáveis, por isso, não conseguimos acessar um pod diretamente. Para solucionar esse problema foi criado o objeto Service. Nele definimos também o balanciamento entre os pods existentes.
+Vimos que os pods são muito instáveis, por isso, não conseguimos acessar um pod diretamente. Para solucionar esse problema foi criado o objeto Service. Nele definimos também o balanceamento entre os pods existentes.
 O projeto funcionou conforme o desejado, não apresentando dificuldades. Uma sugestão de trabalho futuro é configurar o cluster no Goolge Cloud.
 
